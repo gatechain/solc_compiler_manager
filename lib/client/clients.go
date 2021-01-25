@@ -8,8 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
-	"github.com/google/go-querystring/query"
 )
 
 // RestClient manages the REST interface for a calling user.
@@ -48,24 +46,24 @@ func (client RestClient) submitForm(response interface{}, path string, request i
 	var body io.Reader
 
 	if request != nil {
-		if rawRequestPaths[path] {
+		//if rawRequestPaths[path] {
 			reqBytes, ok := request.([]byte)
 			if !ok {
 				return fmt.Errorf("couldn't decode raw request as bytes")
 			}
 			body = bytes.NewBuffer(reqBytes)
-		} else {
-			v, err := query.Values(request)
-			if err != nil {
-				return err
-			}
-
-			queryURL.RawQuery = v.Encode()
-			if encodeJSON {
-				jsonValue, _ := json.Marshal(request)
-				body = bytes.NewBuffer(jsonValue)
-			}
-		}
+		//} else {
+		//	v, err := query.Values(request)
+		//	if err != nil {
+		//		return err
+		//	}
+		//
+		//	queryURL.RawQuery = v.Encode()
+		//	if encodeJSON {
+		//		jsonValue, _ := json.Marshal(request)
+		//		body = bytes.NewBuffer(jsonValue)
+		//	}
+		//}
 	}
 
 	req, err = http.NewRequest(requestMethod, queryURL.String(), body)
@@ -104,6 +102,20 @@ func (client RestClient) post(response interface{}, path string, request interfa
 }
 
 func (client RestClient) FetchVersions(response SolcVersion) error {
-	err := client.get(&response, "/status", nil)
+	err := client.get(&response, "/solc_versions", nil)
 	return err
+}
+
+func (client RestClient) FetchVersion(response SolcVersion, version string) (SolcBuild, error) {
+	err := client.get(&response, "/solc_versions", nil)
+	if err != nil {
+		return SolcBuild{}, err
+	}
+	for _, b := range response.Builds {
+		if b.Version == version {
+			return b, nil
+		}
+	}
+
+	return SolcBuild{}, fmt.Errorf("given version not found")
 }
