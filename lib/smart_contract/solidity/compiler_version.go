@@ -1,8 +1,16 @@
 package solidity
 
-//import "github.com/Shawncles/smart_contract_verifier/lib/client/rpc"
+
+import ()
 
 func FetchVersions() {
-	//rpc MakeRestClient
+
+}
+
+func FetchVersion(version string) {
+
+}
+
+func GetStrictVersion(version string) {
 
 }
