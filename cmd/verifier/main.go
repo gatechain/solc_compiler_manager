@@ -17,6 +17,7 @@ func main() {
 
 	rootCmd.AddCommand(
 		FetchCMD(),
+		DeleteCMD(),
 	)
 
 	err := rootCmd.Execute()
@@ -28,13 +29,26 @@ func main() {
 func FetchCMD() *cobra.Command {
 	fetchCmd := &cobra.Command{
 		Use:   "fetch",
-		Short: "fetch solc source with given compiler version",
+		Short: "fetch solc execute file by given version",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path, err := contract.EnsureExists(args[0])
 			if path != "" {
 				fmt.Println("Download file: ", path)
 			}
+			return err
+		},
+	}
+	return fetchCmd
+}
+
+func DeleteCMD() *cobra.Command {
+	fetchCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "delete solc execute file by given version",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			err := contract.Delete(args[0])
 			return err
 		},
 	}

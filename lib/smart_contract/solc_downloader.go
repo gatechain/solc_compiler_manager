@@ -6,6 +6,7 @@ import (
 	"github.com/gatechain/smart_contract_verifier/lib/service/rest"
 	"net/url"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -91,3 +92,26 @@ func download(version string) bool {
 	return client.Download(version)
 }
 
+func Delete(version string) error {
+	path := filePath(version)
+	if lib.FileExist(path) {
+		return deleteVersion(path)
+	} else {
+		fmt.Printf("version: %s not exist", version)
+		return nil
+	}
+}
+
+func deleteVersion(path string) error {
+	fmt.Printf("delete file: %s \n", path)
+	cmd := fmt.Sprintf("rm %s", path)
+	command := exec.Command("bash", "-c", cmd)
+	err := command.Run()
+	if err != nil {
+		fmt.Printf("delete file filed: %s \n", path)
+		return err
+	} else {
+		print("delete success")
+		return nil
+	}
+}
