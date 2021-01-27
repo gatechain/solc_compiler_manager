@@ -54,3 +54,19 @@ func DeleteCMD() *cobra.Command {
 	}
 	return fetchCmd
 }
+
+func CompileCMD() *cobra.Command {
+	fetchCmd := &cobra.Command{
+		Use:   "compile",
+		Short: "compile solidity source",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			err := contract.Delete(args[0])
+			return err
+		},
+	}
+	return fetchCmd
+}
+
+

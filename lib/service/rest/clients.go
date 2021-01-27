@@ -133,7 +133,7 @@ func (client Client) FetchVersion(response SolcVersion, version string) (SolcBui
 func (client Client) Download(version string) bool {
 	downloadPath := client.serverURL.String() + lib.SolcPlatform + "/" + version
 	localPath := lib.CompilerLocalStoreDir() + version
-	err := downloadFile(downloadPath, localPath, link)
+	err := downloadFile(downloadPath, localPath, callback)
 	return err == nil
 }
 
@@ -213,17 +213,29 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 	return err
 }
 
-func link(path string) error {
+func callback(path string) error {
 	dir := filepath.Dir(path)
 	base := filepath.Base(path)
 	strs := strings.Split(base, "+")
 	if len(strs) < 2 {
 		panic("")
 	}
+
+	var command *exec.Cmd
+	var err error
+	// link file
 	fmt.Printf("link file: %s to %s \n", base, strs[0])
 	cmd := fmt.Sprintf("ln -s %s %s", path, dir + "/" + strs[0])
-	command := exec.Command("bash", "-c", cmd)
-	err := command.Run()
+	command = exec.Command("bash", "-c", cmd)
+	err = command.Run()
+	if err != nil {
+		panic(err)
+	}
+	// change mod
+	fmt.Printf("link file: %s to %s \n", base, strs[0])
+	cmd = fmt.Sprintf("chmod 111 %s", path)
+	command = exec.Command("bash", "-c", cmd)
+	err = command.Run()
 	if err != nil {
 		panic(err)
 	}
