@@ -59,9 +59,9 @@ func (rs *Server) Start(listenAddr string, maxOpen int, readTimeout, writeTimeou
 		return
 	}
 	_ = rs.log.Log(
-		"INFO_START_REST_SERVER: ",
+		"INFO_START_REST_SERVER",
 		fmt.Sprintf(
-			"Starting application REST service ad address: %s",
+			"Starting application REST service at address: %s",
 			listenAddr,
 		),
 	)
@@ -136,7 +136,7 @@ func Listen(addr string, config *Config) (listener net.Listener, err error) {
 // NOTE: This function blocks - you may want to call it in a go-routine.
 func Serve(listener net.Listener, handler http.Handler, logger log.Logger, config *Config) error {
 	_ = logger.Log(
-		"INFO_START_REST_SERVER:",
+		"INFO_START_REST_SERVER",
 		fmt.Sprintf("Start RPC HTTP server on %s", listener.Addr()),
 	)
 
@@ -147,7 +147,7 @@ func Serve(listener net.Listener, handler http.Handler, logger log.Logger, confi
 		MaxHeaderBytes: config.MaxHeaderBytes,
 	}
 	err := s.Serve(listener)
-	logger.Log("RPC HTTP server stopped", "err", err)
+	_ = logger.Log("RPC HTTP server stopped", "err", err)
 	return err
 }
 

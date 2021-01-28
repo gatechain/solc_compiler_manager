@@ -1,6 +1,5 @@
 package solidity
 
-
 import ()
 
 func FetchVersions() {

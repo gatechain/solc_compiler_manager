@@ -15,9 +15,14 @@ func CompileCMD() *cobra.Command {
 		Short: "compile solidity source",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// get flag
+			// get scope
 			scopes, _ := cmd.Flags().GetString(solidity.FlagScope)
 			err := checkScope(scopes)
+			if err != nil {
+				return err
+			}
+			// get name
+			name, err := cmd.Flags().GetString(solidity.FlagName)
 			if err != nil {
 				return err
 			}
@@ -33,7 +38,7 @@ func CompileCMD() *cobra.Command {
 			if !lib.FileExist(filePath) {
 				fmt.Printf("given file not exist, path: %s \n", filePath)
 			}
-			err = solidity.LocalRun(executePath, filePath, scopes)
+			_, err = solidity.LocalRun(executePath, filePath, name, scopes)
 			return err
 		},
 	}
@@ -41,7 +46,13 @@ func CompileCMD() *cobra.Command {
 		solidity.FlagScope, "",
 		"Choose your abi, hashes, bin compile type for specific output or combined output",
 	)
+	compileCmd.Flags().String(
+		solidity.FlagName, "",
+		"Define contract name in your solidity script",
+	)
+
 	_ = compileCmd.MarkFlagRequired(solidity.FlagScope)
+	_ = compileCmd.MarkFlagRequired(solidity.FlagName)
 	return compileCmd
 }
 

@@ -81,11 +81,12 @@ type SolcVersion struct{
 }
 */
 type CompileInput struct {
-	Name            string 	`json:"name"`
-	CompilerVersion string 	`json:"compiler_version"`
-	Code 			string 	`json:"code"`
-	Optimize		bool	`json:"optimize"`
-	EvmVersion		string	`json:"evm_version"`
+	Name            	string 	`json:"name"`
+	CompilerVersion 	string 	`json:"compiler_version"`
+	Code 				string 	`json:"code"`
+	Optimize			bool	`json:"optimize"`
+	OptimizationRuns	int		`json:"optimization_runs"`
+	EvmVersion			string	`json:"evm_version"`
 }
 
 type ABI struct {

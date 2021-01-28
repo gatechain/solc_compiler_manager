@@ -9,9 +9,9 @@ import (
 var (
 	regexVersion   	= `v[0-9]+\.[0-9]+\.[0-9]+`
 	regexCommitSep	= `\+{1}`
-	regexCommit   	= `commit\.[a-z]|[0-9]+`
+	regexCommit   	= `commit\.[a-z0-9]+`
 	VersionMatch 	= regexp.MustCompile(fmt.Sprintf(`^%s$`, regexVersion))
-	LongVersionMatch 	= regexp.MustCompile(fmt.Sprintf(`^%s%s%s$`, regexVersion, regexCommitSep, regexCommit))
+	LongVersionMatch 	= regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, regexVersion, regexCommitSep, regexCommit))
 )
 
 func CheckVersionFormat(version string) error {
@@ -24,10 +24,10 @@ func CheckVersionFormat(version string) error {
 
 func CheckLongVersionFormat(version string) (string, string, error) {
 	matches := LongVersionMatch.FindStringSubmatch(version)
-	if matches == nil || len(matches) != 2{
+	if matches == nil || len(matches) != 3{
 		return "", "", fmt.Errorf("invalid version '%s'", version)
 	}
-	return matches[0], matches[1], nil
+	return matches[1], matches[2], nil
 }
 
 func CheckVersionCommit(version string, commit string) bool {

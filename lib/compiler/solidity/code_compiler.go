@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gatechain/smart_contract_verifier/lib"
+	"github.com/gatechain/smart_contract_verifier/lib/compiler"
+	"math/rand"
+	"os"
 	"os/exec"
-	"path"
+	"strconv"
 
 	//"math/rand"
 	//"os"
@@ -16,6 +19,11 @@ import (
 const allowedEvmVersion = "homestead,tangerineWhistle,spuriousDragon,byzantium,constantinople,petersburg,istanbul,default"
 const NewContractName = "New.sol"
 const FlagScope = "scope"
+const FlagName = "name"
+const ScopeVerify = "bin,abi"
+const ScopeABI = "abi"
+const ScopeHashes = "hashes"
+
 
 // Module responsible to compile the Solidity code of a given Smart Contract.
 /* raw data
@@ -73,52 +81,61 @@ Returns a `Map`.
       }
     }
 */
-func RemoteRun(params lib.CompileInput) {
-	//name := GetValue(params, "name", "")
-	//compilerVersion := GetValue(params, "compiler_version", "")
-	//code := GetValue(params, "code", "")
-	//optimize := GetValue(params, "optimize", "0")
-	//optimizationRuns := optimizationRuns(params)
+func RemoteVerify(params lib.CompileInput) (map[string]interface{}, error) {
+	// check version and commit
+	version, commit, err := lib.CheckLongVersionFormat(params.CompilerVersion)
+	if err != nil {
+		return nil, err
+	}
+	if !lib.CheckVersionCommit(version, commit) {
+		return nil, err
+	}
 
 	// check evm version
 	var evmVersion string
 	if params.EvmVersion == "" {
-		evmVersion = LatestEvmVersion()
+		evmVersion = latestEvmVersion()
 	} else {
 		evmVersion = params.EvmVersion
 	}
-	checkedEvmVersion, _ := IsEvmVersionAllowed(evmVersion)
-	fmt.Println(checkedEvmVersion)
+	checkedEvmVersion, _ := isEvmVersionAllowed(evmVersion)
+	fmt.Println(checkedEvmVersion) // TODO support evm version
 
-	// check version and commit
-	err := lib.CheckVersionFormat(params.CompilerVersion)
+	//optimize := GetValue(params, "optimize", "0")
+	//optimizationRuns := optimizationRuns(params)
+	// TODO support optimize params
+
+	executePath, err := compiler.EnsureExists(version)
 	if err != nil {
-		panic("")
+		return nil, err
 	}
-	//_, err = contract.EnsureExists(version)
-	//if err != nil {
-	//	panic("")
-	//}
-	//if commit != "" {
-	//	if !lib.CheckVersionCommit(version, commit) {
-	//		panic("")
-	//	}
-	//}
 
+	filePath, err := createSourceFile([]byte(params.Code))
+	if err != nil {
+		return nil, err
+	}
+	defer deleteSourceFile(filePath)
+
+	res, err := LocalRun(executePath, filePath, params.Name, ScopeVerify)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
-func LocalRun(compilePath, filePath, scopes string) error {
+func LocalRun(compilePath, filePath, name, scopes string) (map[string]interface{}, error) {
 	// execute compile
 	cmd := fmt.Sprintf("%s --combined-json %s --pretty-json %s", compilePath, scopes, filePath)
 	command := exec.Command("bash", "-c", cmd)
 	output, err := command.Output()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// unpack output
-	res, err := unpack(filePath, output)
+	res, err := unpack(name, output)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// print format
 	for k, v := range res {
@@ -132,41 +149,44 @@ func LocalRun(compilePath, filePath, scopes string) error {
 			}
 		}
 	}
-	return nil
+	return res, nil
 }
 
-func unpack(filePath string, output []byte) (map[string]interface{}, error) {
-	// trim suffix if exist
-	var filenameWithSuffix string
-	filenameWithSuffix = path.Base(filePath)
-	var fileSuffix string
-	fileSuffix = path.Ext(filenameWithSuffix)
-	var filenameOnly string
-	filenameOnly = strings.TrimSuffix(filenameWithSuffix, fileSuffix)
-
+func unpack(name string, output []byte) (map[string]interface{}, error) {
 	// unpack data
 	tmp := lib.UnpackData{}
 	err := json.Unmarshal(output, &tmp)
 	if err != nil {
 		return nil, fmt.Errorf("unpack data error")
 	}
-	value, ok := tmp.Contracts[filePath+":"+filenameOnly]
-	if !ok {
-		return nil, fmt.Errorf("unpack data error")
+	// unpack output by given contract name
+	Contract :=  make(map[string]interface{})
+	for k, v := range tmp.Contracts {
+		seps := strings.Split(k, ":")
+		if len(seps) != 2 {
+			return nil, fmt.Errorf("unpack data error")
+		}
+		if name == seps[1] {
+			Contract = v
+		}
 	}
-	return value, nil
+	if len(Contract) == 0 {
+		return nil, fmt.Errorf("contract name not found")
+	}
+
+	return Contract, nil
 }
 
-func LatestEvmVersion() string {
-	version := AllowedEvmVersions()
+func latestEvmVersion() string {
+	version := allowedEvmVersions()
 	return version[len(version) - 1]
 }
 
-func AllowedEvmVersions() []string {
+func allowedEvmVersions() []string {
 	return strings.Split(allowedEvmVersion, ",")
 }
 
-func IsEvmVersionAllowed(evmVersion string) (string, bool) {
+func isEvmVersionAllowed(evmVersion string) (string, bool) {
 	if strings.Contains(allowedEvmVersion, evmVersion) {
 		return evmVersion, true
 	} else {
@@ -207,7 +227,26 @@ func optimizationRuns(params map[string]string) string{
 	return ""
 }
 
-func createSourceFile(code string) {
-	//randonID := rand.Int()
-	//tempDir := os.TempDir() + "solidity_source" + string() + ".sol"
+func createSourceFile(code []byte) (string, error) {
+	randomID := strconv.Itoa(rand.Int())
+	tempDir := os.TempDir() + randomID + NewContractName
+	fh, err := os.Create(tempDir)
+	if err != nil {
+		return "", err
+	}
+	defer fh.Close()
+	_, err = fh.Write(code)
+	if err != nil {
+		return "", err
+	}
+	return tempDir, nil
+}
+
+func deleteSourceFile(path string) bool {
+	err := os.Remove(path)
+	if err != nil && os.IsNotExist(err) || err == nil {
+		return true
+	} else {
+		return false
+	}
 }
