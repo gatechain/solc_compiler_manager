@@ -45,10 +45,6 @@ func FileExist(path string) bool {
 
 type Application map[string]string
 
-func New() Application {
-	return make(Application)
-}
-
 func (RegisterApp Application) HaveEnv(env string) bool {
 	_, ok := RegisterApp[env]
 	return ok
@@ -70,12 +66,12 @@ func (RegisterApp *Application) Set(key, value string) {
 var RegisterApp Application
 
 func init() {
-	app := New()
-
-	// register urls
-	registerPath(&app)
-
-	RegisterApp = app
+	//app := New()
+	//
+	//// register urls
+	//registerPath(&app)
+	//
+	//RegisterApp = app
 }
 
 func registerPath(app *Application) {

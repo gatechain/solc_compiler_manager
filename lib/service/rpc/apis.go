@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"github.com/gatechain/smart_contract_verifier/lib/service/rest"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -24,16 +25,25 @@ func GetApis(cliCtx context.Context) []API{
 		{
 			Namespace: ContractNamespace,
 			Version:   apiVersion,
-			Service:   NewContractAPI(),
+			Service:   NewContractAPI(cliCtx),
 			Public:    true,
 		},
 	}
 }
 
-func RegisterApi(s *rpc.Server, apis []API) {
+// RegisterRoutes creates a new server and registers the `/rpc` endpoint.
+// Rpc calls are enabled based on their associated module.
+func RegisterRoutes(rs *rest.Server) {
+	server := rpc.NewServer()
+	apis := GetApis(rs.CliCtx)
+
 	for _, api := range apis {
-		if err := s.RegisterName(api.Namespace, api.Service); err != nil {
+		if err := server.RegisterName(api.Namespace, api.Service); err != nil {
 			panic(err)
 		}
 	}
+
+	// register handler
+	rs.Mux.HandleFunc("/", server.ServeHTTP).Methods("POST", "OPTIONS")
+
 }

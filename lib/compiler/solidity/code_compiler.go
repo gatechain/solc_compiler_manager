@@ -113,10 +113,14 @@ func LocalRun(compilePath, filePath, scopes string) error {
 	command := exec.Command("bash", "-c", cmd)
 	output, err := command.Output()
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	res, _ := unpack(filePath, output)
+	// unpack output
+	res, err := unpack(filePath, output)
+	if err != nil {
+		return err
+	}
+	// print format
 	for k, v := range res {
 		fmt.Println(k, ": ")
 		switch rv := v.(type) {

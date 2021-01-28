@@ -97,24 +97,22 @@ type ABI struct {
 type EventABI struct {
 	Anonymous	bool 	`json:"anonymous"`
 	Inputs		[]string	`json:"inputs"`
-	//\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"counter\",\"type\":\"uint256\"}],\"name\":\"Changed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"counter\",\"type\":\"uint256\"}],\"name\":\"Added\",\"type\":\"event\"}
 }
 
 type EventABIIO struct {
 	Indexed			bool 	`json:"indexed"`
 	InternalType	string	`json:"internalType"`
 	Name			string	`json:"name"`
-	//abi.Type\":\"uint256\"}
 }
 
 type FunctionABI struct {
-	Constant		bool      	`json:"constant"`
+	Constant		bool      			`json:"constant"`
 	Inputs			[]FunctionABIIO  	`json:"inputs"`
-	Name			string    	`json:"name"`
+	Name			string    			`json:"name"`
 	Outputs			[]FunctionABIIO 	`json:"outputs"`
-	Payable			bool   		`json:"payable"`
-	StateMutability	string 		`json:"stateMutability"`
-	Type			string    	`json:"type"`
+	Payable			bool   				`json:"payable"`
+	StateMutability	string 				`json:"stateMutability"`
+	Type			string    			`json:"type"`
 }
 
 type FunctionABIIO struct {
@@ -129,6 +127,7 @@ type Hashes map[string]string
 
 type Version string
 
+// UnpackData handles local compile response, unmarshal json string to object
 type UnpackData struct {
 	Contracts map[string]map[string]interface{}	`json:"contracts"`
 	Version										`json:"version"`
