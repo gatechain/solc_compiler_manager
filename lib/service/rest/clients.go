@@ -109,17 +109,17 @@ func (client Client) post(response interface{}, path string, request interface{}
 	return client.submitForm(response, path, request, "POST", true /* encodeJSON */)
 }
 
-func (client Client) FetchVersions(response *SolcVersion) error {
+func (client Client) FetchVersions(response *lib.SolcVersion) error {
 	path := lib.SolcPlatform + "/" + lib.SolcListVersions
 	err := client.get(&response, path, nil)
 	return err
 }
 
-func (client Client) FetchVersion(response SolcVersion, version string) (SolcBuild, error) {
+func (client Client) FetchVersion(response lib.SolcVersion, version string) (lib.SolcBuild, error) {
 	path := lib.RegisterApp.GetPath(lib.SolcBinApiUrl, lib.SolcBinApiUrl)
 	err := client.get(&response, path, nil)
 	if err != nil {
-		return SolcBuild{}, err
+		return lib.SolcBuild{}, err
 	}
 	for _, b := range response.Builds {
 		if b.Version == version {
@@ -127,7 +127,7 @@ func (client Client) FetchVersion(response SolcVersion, version string) (SolcBui
 		}
 	}
 
-	return SolcBuild{}, fmt.Errorf("given version not found")
+	return lib.SolcBuild{}, fmt.Errorf("given version not found")
 }
 
 func (client Client) Download(version string) bool {
@@ -232,8 +232,8 @@ func callback(path string) error {
 		panic(err)
 	}
 	// change mod
-	fmt.Printf("link file: %s to %s \n", base, strs[0])
-	cmd = fmt.Sprintf("chmod 111 %s", path)
+	fmt.Printf("chmod: %s to %s \n", base, strs[0])
+	cmd = fmt.Sprintf("chmod: %s", path)
 	command = exec.Command("bash", "-c", cmd)
 	err = command.Run()
 	if err != nil {
