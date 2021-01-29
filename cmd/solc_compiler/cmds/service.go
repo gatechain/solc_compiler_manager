@@ -7,10 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-// ServeCommand will start the application REST service as a blocking process. It
-// takes a codec to create a RestServer object and a function to register all
-// necessary routes.
+// ServeCommand will start the application REST service.
+// It takes a codec to create a RestServer object and a function to register all necessary routes.
 func ServiceCMD(cdc *lib.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "rest-server",

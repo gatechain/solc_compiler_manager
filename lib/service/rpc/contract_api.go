@@ -23,8 +23,11 @@ func (api *ContractAPI) Ping() string {
 	return "Pong"
 }
 
-func (api *ContractAPI) Verify(params lib.CompileInput) map[string]interface{} {
-	res, _ := solidity.RemoteVerify(params)
-	return res
+func (api *ContractAPI) Verify(params lib.CompileInput) (map[string]interface{}, error) {
+	res, err := solidity.RemoteVerify(params)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 

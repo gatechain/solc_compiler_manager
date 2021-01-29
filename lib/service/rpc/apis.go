@@ -2,8 +2,8 @@ package rpc
 
 import (
 	"context"
-	"github.com/gatechain/smart_contract_verifier/lib/service/rest"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/gatechain/smart_contract_verifier/lib/service/rest"
 )
 
 // RPC namespaces and API version
@@ -44,6 +44,5 @@ func RegisterRoutes(rs *rest.Server) {
 	}
 
 	// register handler
-	rs.Mux.HandleFunc("/", server.ServeHTTP).Methods("POST", "OPTIONS")
-
+	rs.Mux.HandleFunc("/", server.ServeHTTP).Methods("POST")
 }

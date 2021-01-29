@@ -12,10 +12,11 @@ func main() {
 
 	rootCmd := &cobra.Command{
 		Use:   "solc_compiler",
-		Short: "Command line interface for smart contract compiler",
+		Short: "Command line interface for solidity compiler",
 	}
 
 	rootCmd.AddCommand(
+		cmds.InitCMD(),
 		cmds.FetchCMD(),
 		cmds.DeleteCMD(),
 		cmds.CompileCMD(),

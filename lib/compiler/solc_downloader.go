@@ -12,10 +12,10 @@ import (
 
 func EnsureExists(version string) (string, error){
 	if err := lib.CheckVersionFormat(version); err != nil {
-		return "", fmt.Errorf("version foramt not match, need: vXX.XX.XX, got %s", version)
+		return "", fmt.Errorf("version foramt not match, need version like: v0.8.0, got %s", version)
 	}
 
-	path := filePath(version)
+	path := lib.FilePath(version)
 
 	if lib.FileExist(path) && version != lib.SolcVersionLatest {
 		return path, nil
@@ -25,23 +25,19 @@ func EnsureExists(version string) (string, error){
 			HandleCall(version, release)
 			return path, nil
 		} else {
-			return "", fmt.Errorf("given version not exists")
+			return "", fmt.Errorf("release not match given version")
 		}
 	}
 }
 
 func HandleCall(version, release string) {
-	path := filePath(version)
+	path := lib.FilePath(version)
 	if needFetch(version, path) {
 		success := download(release)
 		if !success {
-			panic(fmt.Sprintf("create file %s filed", path))
+			panic(fmt.Sprintf("download file %s filed", path))
 		}
 	}
-}
-
-func filePath(version string) string {
-	return lib.CompilerLocalStoreDir() + fmt.Sprintf("solc-%s-%s", lib.SolcPlatform, version)
 }
 
 // fetch version
@@ -97,7 +93,7 @@ func download(version string) bool {
 }
 
 func Delete(version string) error {
-	path := filePath(version)
+	path := lib.FilePath(version)
 	if lib.FileExist(path) {
 		return deleteVersion(path)
 	} else {

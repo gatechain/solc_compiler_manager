@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	FlagListenAddr         = "laddr"
-	FlagMaxOpenConnections = "max-open"
-	FlagRPCReadTimeout     = "read-timeout"
-	FlagRPCWriteTimeout    = "write-timeout"
-	FlagUnsafeCORS         = "unsafe-cors"
+	FlagListenAddr         	= "laddr"
+	FlagMaxOpenConnections 	= "max-open"
+	FlagRPCReadTimeout     	= "read-timeout"
+	FlagRPCWriteTimeout    	= "write-timeout"
+	FlagUnsafeCORS       	= "unsafe-cors"
 )
 
 // Remember the status for logging

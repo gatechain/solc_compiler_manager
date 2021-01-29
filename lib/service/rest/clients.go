@@ -110,13 +110,13 @@ func (client Client) post(response interface{}, path string, request interface{}
 }
 
 func (client Client) FetchVersions(response *lib.SolcVersion) error {
-	path := lib.SolcPlatform + "/" + lib.SolcListVersions
+	path := lib.SolcMacOSX + "/" + lib.SolcListVersions
 	err := client.get(&response, path, nil)
 	return err
 }
 
 func (client Client) FetchVersion(response lib.SolcVersion, version string) (lib.SolcBuild, error) {
-	path := lib.RegisterApp.GetPath(lib.SolcBinApiUrl, lib.SolcBinApiUrl)
+	path := lib.SolcBinApiUrl + lib.SolcBinApiUrl
 	err := client.get(&response, path, nil)
 	if err != nil {
 		return lib.SolcBuild{}, err
@@ -131,7 +131,7 @@ func (client Client) FetchVersion(response lib.SolcVersion, version string) (lib
 }
 
 func (client Client) Download(version string) bool {
-	downloadPath := client.serverURL.String() + lib.SolcPlatform + "/" + version
+	downloadPath := client.serverURL.String() + lib.SolcMacOSX + "/" + version
 	localPath := lib.CompilerLocalStoreDir() + version
 	err := downloadFile(downloadPath, localPath, callback)
 	return err == nil

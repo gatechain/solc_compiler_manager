@@ -89,43 +89,7 @@ type CompileInput struct {
 	EvmVersion			string	`json:"evm_version"`
 }
 
-type ABI struct {
-	ABI			[]string 		`json:"abi"`
-	Bytecode	string   	`json:"bytecode"`
-	Name		string   	`json:"name"`
-}
-
-type EventABI struct {
-	Anonymous	bool 	`json:"anonymous"`
-	Inputs		[]string	`json:"inputs"`
-}
-
-type EventABIIO struct {
-	Indexed			bool 	`json:"indexed"`
-	InternalType	string	`json:"internalType"`
-	Name			string	`json:"name"`
-}
-
-type FunctionABI struct {
-	Constant		bool      			`json:"constant"`
-	Inputs			[]FunctionABIIO  	`json:"inputs"`
-	Name			string    			`json:"name"`
-	Outputs			[]FunctionABIIO 	`json:"outputs"`
-	Payable			bool   				`json:"payable"`
-	StateMutability	string 				`json:"stateMutability"`
-	Type			string    			`json:"type"`
-}
-
-type FunctionABIIO struct {
-	InternalType	string	`json:"internalType"`
-	Name			string	`json:"name"`
-	Type			string	`json:"type"`
-}
-
-type Bin string
-
-type Hashes map[string]string
-
+// compiler version, format in v12.34.56
 type Version string
 
 // UnpackData handles local compile response, unmarshal json string to object
@@ -133,3 +97,6 @@ type UnpackData struct {
 	Contracts map[string]map[string]interface{}	`json:"contracts"`
 	Version										`json:"version"`
 }
+
+// local config
+type LocalConfig map[string]string

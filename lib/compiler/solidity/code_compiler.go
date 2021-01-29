@@ -20,10 +20,12 @@ const allowedEvmVersion = "homestead,tangerineWhistle,spuriousDragon,byzantium,c
 const NewContractName = "New.sol"
 const FlagScope = "scope"
 const FlagName = "name"
+const FlagEvmVersion = "evm-version"
+const FlagOptimize = "optimize"
+const FlagOptimizeRuns = "optimize-runs"
 const ScopeVerify = "bin,abi"
 const ScopeABI = "abi"
 const ScopeHashes = "hashes"
-
 
 // Module responsible to compile the Solidity code of a given Smart Contract.
 /* raw data
@@ -33,7 +35,7 @@ Returns a `Map`.
 
 ## Examples
 
-    iex(1)> Explorer.SmartContract.Solidity.CodeCompiler.run([
+    ...> RemoteVerify({
     ...>      name: "SimpleStorage",
     ...>      compiler_version: "v0.4.24+commit.e67f0147",
     ...>      code: \"""
@@ -51,35 +53,35 @@ Returns a `Map`.
     ...>          }
     ...>      }
     ...>      \""",
-    ...>      optimize: false, evm_version: "byzantium"
-    ...>  ])
-    {
-      :ok,
-      %{
-        "abi" => [
-          %{
-            "constant" => false,
-            "inputs" => [%{"name" => "x", "type" => "uint256"}],
-            "name" => "set",
-            "outputs" => [],
-            "payable" => false,
-            "stateMutability" => "nonpayable",
-            "type" => "function"
-          },
-          %{
-            "constant" => true,
-            "inputs" => [],
-            "name" => "get",
-            "outputs" => [%{"name" => "", "type" => "uint256"}],
-            "payable" => false,
-            "stateMutability" => "view",
-            "type" => "function"
-          }
-        ],
+    ...>      optimize: false,
+	...>	  optimize_runs: 0,
+	...>	  evm_version: "byzantium"
+    ...>  })
+    return:
+	{
+        "abi": [
+          	{
+            	"constant" => false,
+				"inputs" => [%{"name" => "x", "type" => "uint256"}],
+				"name" => "set",
+				"outputs" => [],
+				"payable" => false,
+				"stateMutability" => "nonpayable",
+				"type" => "function"
+          	},
+          	{
+				"constant" => true,
+				"inputs" => [],
+				"name" => "get",
+				"outputs" => [%{"name" => "", "type" => "uint256"}],
+				"payable" => false,
+				"stateMutability" => "view",
+				"type" => "function"
+          	}
+		],
         "bytecode" => "608060405234801561001057600080fd5b5060df8061001f6000396000f3006080604052600436106049576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806360fe47b114604e5780636d4ce63c146078575b600080fd5b348015605957600080fd5b5060766004803603810190808035906020019092919050505060a0565b005b348015608357600080fd5b50608a60aa565b6040518082815260200191505060405180910390f35b8060008190555050565b600080549050905600a165627a7a72305820834bdab406d80509618957aa1a5ad1a4b77f4f1149078675940494ebe5b4147b0029",
         "name" => "SimpleStorage"
-      }
-    }
+	}
 */
 func RemoteVerify(params lib.CompileInput) (map[string]interface{}, error) {
 	// check version and commit
@@ -88,7 +90,7 @@ func RemoteVerify(params lib.CompileInput) (map[string]interface{}, error) {
 		return nil, err
 	}
 	if !lib.CheckVersionCommit(version, commit) {
-		return nil, err
+		return nil, fmt.Errorf("version with given commit not match, please check your compiler version")
 	}
 
 	// check evm version
@@ -99,12 +101,8 @@ func RemoteVerify(params lib.CompileInput) (map[string]interface{}, error) {
 		evmVersion = params.EvmVersion
 	}
 	checkedEvmVersion, _ := isEvmVersionAllowed(evmVersion)
-	fmt.Println(checkedEvmVersion) // TODO support evm version
 
-	//optimize := GetValue(params, "optimize", "0")
-	//optimizationRuns := optimizationRuns(params)
-	// TODO support optimize params
-
+	// solidity execute binary path
 	executePath, err := compiler.EnsureExists(version)
 	if err != nil {
 		return nil, err
@@ -116,7 +114,10 @@ func RemoteVerify(params lib.CompileInput) (map[string]interface{}, error) {
 	}
 	defer deleteSourceFile(filePath)
 
-	res, err := LocalRun(executePath, filePath, params.Name, ScopeVerify)
+	res, err := LocalRun(
+		executePath, filePath, params.Name, ScopeVerify,
+		checkedEvmVersion, params.Optimize, params.OptimizationRuns,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -124,9 +125,28 @@ func RemoteVerify(params lib.CompileInput) (map[string]interface{}, error) {
 	return res, nil
 }
 
-func LocalRun(compilePath, filePath, name, scopes string) (map[string]interface{}, error) {
+func LocalRun(compilePath, filePath, name, scopes, evmVersion string, optimize bool, optimizeRuns int) (map[string]interface{}, error) {
+	// format evm version
+	if evmVersion == "default" {
+		evmVersion = ""
+	} else {
+		evmVersion = fmt.Sprintf(" --evm-version %s", evmVersion)
+	}
+	// format option
+	var optimizeFlag, runFlag string
+	if optimize {
+		optimizeFlag = " --optimize"
+		runFlag = fmt.Sprintf(" --optimize-runs %d", optimizeRuns)
+	} else {
+		optimizeFlag = ""
+		runFlag = ""
+	}
 	// execute compile
-	cmd := fmt.Sprintf("%s --combined-json %s --pretty-json %s", compilePath, scopes, filePath)
+	cmd := fmt.Sprintf(
+		"%s --combined-json %s --pretty-json %s",
+		compilePath, scopes, filePath,
+	) + evmVersion + optimizeFlag + runFlag
+
 	command := exec.Command("bash", "-c", cmd)
 	output, err := command.Output()
 	if err != nil {
