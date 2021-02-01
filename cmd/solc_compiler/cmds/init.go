@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bgentry/speakeasy"
 	"github.com/gatechain/smart_contract_verifier/lib"
+	"github.com/gatechain/smart_contract_verifier/lib/compiler"
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 	"os"
@@ -17,6 +18,7 @@ func InitCMD() *cobra.Command {
 		Short: "init solidity verifier",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			home := lib.CompilerLocalHomeDir()
+			fetchAll, err := cmd.Flags().GetBool(lib.SolcFetchAll)
 			platform, err := cmd.Flags().GetString(lib.LocalPlatForm)
 			if err != nil {
 				return err
@@ -31,10 +33,20 @@ func InitCMD() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			// init fetch all compiler version on specific platform
+			if fetchAll {
+				err = compiler.FetchAllVersion()
+				if err != nil {
+					return err
+				}
+			}
+
 			fmt.Println("verifier init success")
 			return nil
 		},
 	}
+	cmd.Flags().BoolP(lib.SolcFetchAll, "a", false, "Fetch all compiler version when project init")
 	cmd.Flags().String(lib.LocalPlatForm, "", "The platform for the server")
 	_ = cmd.MarkFlagRequired(lib.LocalPlatForm)
 	return cmd
@@ -44,7 +56,6 @@ func checkPlatform(platform string) bool {
 	if platform == lib.SolcLinux || platform == lib.SolcMacOSX {
 		return true
 	} else {
-		//fmt.Printf("please choose platform between %s and %s \n", lib.SolcMacOSX, lib.SolcLinux)
 		return false
 	}
 }

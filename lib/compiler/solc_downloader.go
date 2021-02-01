@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"sync"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func EnsureExists(version string) (string, error){
 			HandleCall(version, release)
 			return path, nil
 		} else {
-			return "", fmt.Errorf("release not match given version")
+			return "", fmt.Errorf("no release can match given version")
 		}
 	}
 }
@@ -76,11 +77,11 @@ func fetchVersions() lib.SolcVersion {
 
 func versionReleased(versions lib.SolcVersion, version string) string {
 	// TODO need more cache
-	if version == lib.SolcListVersions {
+	if version == lib.SolcVersionLatest {
 		return versions.Releases[versions.LatestRelease]
 	}
 	for _, build := range versions.Builds {
-		if build.Version == version {
+		if "v" + build.Version == version {
 			return build.Path
 		}
 	}
@@ -115,3 +116,20 @@ func deleteVersion(path string) error {
 		return nil
 	}
 }
+
+func FetchAllVersion() error {
+	versions := fetchVersions()
+	var wg sync.WaitGroup
+	wg.Add(len(versions.Releases))
+	for version, release := range versions.Releases {
+		go goHandleCall(&wg, version, release)
+	}
+	wg.Wait()
+	return nil
+}
+
+func goHandleCall(wg *sync.WaitGroup, version, release string) {
+	HandleCall(version, release)
+	wg.Done()
+}
+

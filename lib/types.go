@@ -8,10 +8,11 @@ import (
 // const for completed urls
 const (
 	SolcBinApiUrl 			= "https://binaries.soliditylang.org/"
-	SolcLinux			= "linux-amd64"
-	SolcMacOSX			= "macosx-amd64"
+	SolcLinux				= "linux-amd64"
+	SolcMacOSX				= "macosx-amd64"
 	SolcListVersions		= "list.json"
 	SolcVersionLatest		= "latest"
+	SolcFetchAll			= "fetch-all"
 	LocalCompilerRootDir	= "solc_compilers/"
 	LocalSolcCompilerDir 	= "stored/"
 	LocalPlatForm			= "platform"

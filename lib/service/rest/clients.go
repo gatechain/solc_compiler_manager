@@ -174,6 +174,13 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 	}
 	defer resp.Body.Close()
 
+	// progress bar plot
+	i := make(chan int64)
+	defer close(i)
+	end := make(chan bool)
+	defer close(end)
+	go lib.ShowProgress(i, end)
+
 	for {
 		// read bytes
 		nr, er := resp.Body.Read(buf)
@@ -195,6 +202,9 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 				break
 			}
 		}
+		// write percentage
+		end <- false
+		i <- int64(float64(written) / float64(fsize) * 100)
 		if er != nil {
 			if er != io.EOF {
 				err = er
@@ -202,6 +212,7 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 			break
 		}
 	}
+	end <- true
 	if err != nil {
 		fmt.Println(err)
 	} else {
@@ -222,21 +233,22 @@ func callback(path string) error {
 	}
 
 	var command *exec.Cmd
+	var cmd string
 	var err error
-	// link file
-	fmt.Printf("link file: %s to %s \n", base, strs[0])
-	cmd := fmt.Sprintf("ln -s %s %s", path, dir + "/" + strs[0])
+	// change mod
+	fmt.Printf("chmod: %s\n", base)
+	cmd = fmt.Sprintf("chmod 111 %s", path)
 	command = exec.Command("bash", "-c", cmd)
 	err = command.Run()
 	if err != nil {
 		panic(err)
 	}
-	// change mod
-	fmt.Printf("chmod: %s to %s \n", base, strs[0])
-	cmd = fmt.Sprintf("chmod: %s", path)
+	// link file
+	fmt.Printf("link file: %s to %s \n", base, strs[0])
+	cmd = fmt.Sprintf("ln -s %s %s", path, dir + "/" + strs[0])
 	command = exec.Command("bash", "-c", cmd)
 	err = command.Run()
-	if err != nil {
+	if err != nil && !os.IsExist(err) {
 		panic(err)
 	}
 	return nil

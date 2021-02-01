@@ -14,10 +14,10 @@ import (
 
 // version format
 var (
-	regexVersion   	= `v[0-9]+\.[0-9]+\.[0-9]+`
-	regexCommitSep	= `\+{1}`
-	regexCommit   	= `commit\.[a-z0-9]+`
-	VersionMatch 	= regexp.MustCompile(fmt.Sprintf(`^%s$`, regexVersion))
+	regexVersion   		= `v[0-9]+\.[0-9]+\.[0-9]+`
+	regexCommitSep		= `\+{1}`
+	regexCommit   		= `commit\.[a-z0-9]+`
+	VersionMatch 		= regexp.MustCompile(fmt.Sprintf(`^%s$`, regexVersion))
 	LongVersionMatch 	= regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, regexVersion, regexCommitSep, regexCommit))
 )
 
@@ -75,7 +75,7 @@ func FileExist(path string) bool {
 func GetPlatform() string {
 	config := make(LocalConfig)
 	home := CompilerLocalHomeDir()
-	err := ReadJson(home + LocalConfigName, config)
+	err := ReadJson(home + LocalConfigName, &config)
 	if err != nil {
 		return ""
 	}
@@ -103,27 +103,14 @@ func ReadJson(path string, o interface{}) error {
 
 // write local file in json format
 func WriteJson(path string, o interface{}) error {
-	//var fh * os.File
 	var err error
 	bz, err := json.Marshal(o)
 	if err != nil {
 		return err
 	}
 	err = ioutil.WriteFile(path, bz, 0644)
-	//fh, err = os.OpenFile(path, os.O_APPEND, os.ModePerm)
 	if err != nil {
-		//if os.IsNotExist(err) {
-		//	fh, err = os.Create(path)
-		//	if err != nil {
-		//		return err
-		//	}
-		//}
 		return err
 	}
-	//defer fh.Close()
-	//_, err = fh.Write(bz)
-	//if err != nil {
-	//	return err
-	//}
 	return nil
 }
