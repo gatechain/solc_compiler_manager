@@ -7,7 +7,7 @@ import (
 // amino codec to marshal/unmarshal
 type Codec = amino.Codec
 
-func New() *Codec {
+func NewCdc() *Codec {
 	return amino.NewCodec()
 }
 
@@ -15,6 +15,6 @@ func New() *Codec {
 var Cdc *Codec
 
 func init() {
-	cdc := New()
+	cdc := NewCdc()
 	Cdc = cdc.Seal()
 }

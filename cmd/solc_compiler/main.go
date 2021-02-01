@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gatechain/smart_contract_verifier/cmd/solc_compiler/cmds"
 	"github.com/gatechain/smart_contract_verifier/lib"
 	"github.com/spf13/cobra"
@@ -25,6 +26,6 @@ func main() {
 
 	err := rootCmd.Execute()
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
 	}
 }

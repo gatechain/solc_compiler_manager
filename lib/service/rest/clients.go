@@ -130,25 +130,24 @@ func (client Client) FetchVersion(response lib.SolcVersion, version string) (lib
 	return lib.SolcBuild{}, fmt.Errorf("given version not found")
 }
 
-func (client Client) Download(version string) bool {
+func (client Client) Download(version string, bar *lib.Bar) bool {
 	downloadPath := client.serverURL.String() + lib.SolcMacOSX + "/" + version
 	localPath := lib.CompilerLocalStoreDir() + version
-	err := downloadFile(downloadPath, localPath, callback)
+	err := downloadFile(downloadPath, localPath, bar, callback)
 	return err == nil
 }
 
-func downloadFile(url string, localPath string, fb func(path string) error) error {
+func downloadFile(url string, localPath string, bar *lib.Bar, fb func(path string) error) error {
 	var (
 		fsize   int64
 		buf     = make([]byte, 32*1024)
 		written int64
 	)
 	tmpFilePath := localPath + ".download"
-	fmt.Println("Download temp: ", tmpFilePath)
 
 	client := new(http.Client)
 	//default timeout
-	client.Timeout = time.Second * 600
+	client.Timeout = time.Second * 1800
 
 	// check url
 	resp, err := client.Get(url)
@@ -161,7 +160,6 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("Download size: ", fsize)
 
 	// create tmp file
 	file, err := os.Create(tmpFilePath)
@@ -173,13 +171,6 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 		return errors.New("body is null")
 	}
 	defer resp.Body.Close()
-
-	// progress bar plot
-	i := make(chan int64)
-	defer close(i)
-	end := make(chan bool)
-	defer close(end)
-	go lib.ShowProgress(i, end)
 
 	for {
 		// read bytes
@@ -201,10 +192,12 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 				err = io.ErrShortWrite
 				break
 			}
+			// write percentage
+			if bar != nil {
+				bar.Set(int(float64(written) / float64(fsize) * 100))
+			}
 		}
-		// write percentage
-		end <- false
-		i <- int64(float64(written) / float64(fsize) * 100)
+
 		if er != nil {
 			if er != io.EOF {
 				err = er
@@ -212,12 +205,14 @@ func downloadFile(url string, localPath string, fb func(path string) error) erro
 			break
 		}
 	}
-	end <- true
 	if err != nil {
 		fmt.Println(err)
 	} else {
 		file.Close()
 		err = os.Rename(tmpFilePath, localPath)
+		if err != nil {
+			return err
+		}
 	}
 	// callback, link current download
 	err = fb(localPath)
@@ -236,7 +231,6 @@ func callback(path string) error {
 	var cmd string
 	var err error
 	// change mod
-	fmt.Printf("chmod: %s\n", base)
 	cmd = fmt.Sprintf("chmod 111 %s", path)
 	command = exec.Command("bash", "-c", cmd)
 	err = command.Run()
@@ -244,7 +238,6 @@ func callback(path string) error {
 		panic(err)
 	}
 	// link file
-	fmt.Printf("link file: %s to %s \n", base, strs[0])
 	cmd = fmt.Sprintf("ln -s %s %s", path, dir + "/" + strs[0])
 	command = exec.Command("bash", "-c", cmd)
 	err = command.Run()

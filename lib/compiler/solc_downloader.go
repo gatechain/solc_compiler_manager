@@ -23,7 +23,7 @@ func EnsureExists(version string) (string, error){
 	} else {
 		versions := fetchVersions()
 		if release := versionReleased(versions, version); release != ""{
-			HandleCall(version, release)
+			HandleCall(version, release, nil)
 			return path, nil
 		} else {
 			return "", fmt.Errorf("no release can match given version")
@@ -31,10 +31,10 @@ func EnsureExists(version string) (string, error){
 	}
 }
 
-func HandleCall(version, release string) {
+func HandleCall(version, release string, bar *lib.Bar) {
 	path := lib.FilePath(version)
 	if needFetch(version, path) {
-		success := download(release)
+		success := download(release, bar)
 		if !success {
 			panic(fmt.Sprintf("download file %s filed", path))
 		}
@@ -88,9 +88,9 @@ func versionReleased(versions lib.SolcVersion, version string) string {
 	return ""
 }
 
-func download(version string) bool {
+func download(version string, bar *lib.Bar) bool {
 	client := client()
-	return client.Download(version)
+	return client.Download(version, bar)
 }
 
 func Delete(version string) error {
@@ -117,19 +117,37 @@ func deleteVersion(path string) error {
 	}
 }
 
-func FetchAllVersion() error {
+func FetchAllVersion(n ...int) error {
 	versions := fetchVersions()
 	var wg sync.WaitGroup
 	wg.Add(len(versions.Releases))
+	plot := lib.NewMultiProgressBar("Start Download: ")
+
+	var jobNum int
+	if len(n) > 0 {
+		jobNum = n[0]
+	} else {
+		jobNum = len(versions.Releases)
+	}
+	jobs := make(chan string, jobNum)
 	for version, release := range versions.Releases {
-		go goHandleCall(&wg, version, release)
+		// skip downloaded file
+		path := lib.FilePath(version)
+		if lib.FileExist(path) && version != lib.SolcVersionLatest {
+			continue
+		}
+
+		jobs <- version
+		bar := plot.NewBar(version + "\t", 100)
+		go goHandleCall(&jobs, &wg, bar, version, release)
 	}
 	wg.Wait()
 	return nil
 }
 
-func goHandleCall(wg *sync.WaitGroup, version, release string) {
-	HandleCall(version, release)
-	wg.Done()
+func goHandleCall(jobs *chan string, wg *sync.WaitGroup, bar *lib.Bar, version, release string) {
+	HandleCall(version, release, bar)
+	<-*jobs
+	defer wg.Done()
 }
 

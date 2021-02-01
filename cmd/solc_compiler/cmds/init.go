@@ -36,7 +36,7 @@ func InitCMD() *cobra.Command {
 
 			// init fetch all compiler version on specific platform
 			if fetchAll {
-				err = compiler.FetchAllVersion()
+				err = compiler.FetchAllVersion(3)  // n for parallel number
 				if err != nil {
 					return err
 				}
