@@ -76,4 +76,15 @@ curl --location --request POST 'http://127.0.0.1:1212' \
     ],
     "id": 1
 }'
+
+contract_listVersions: 返回当前平台所支持的编译器版本
+
+curl --location --request GET 'http://127.0.0.1:1212' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "jsonrpc": "2.0",
+    "method": "contract_listVersions",
+    "params": [],
+    "id": 1
+}'
 ```
