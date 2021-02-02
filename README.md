@@ -7,7 +7,7 @@ make install
 
 ## 项目初始化
 ```
-solc-compiler init --platform macosx-amd64 -a
+solc-compiler init --platform macosx-amd64/linux-amd64 -a
 ```
 
 初始化需要指定项目运行平台，初始化可以指定是否下载运行平台所有的 `solc` 版本。
