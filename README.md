@@ -7,7 +7,7 @@ make install
 
 ## 项目初始化
 ```
-solc_compiler init --platform macosx-amd64 -a
+solc-compiler init --platform macosx-amd64 -a
 ```
 
 初始化需要指定项目运行平台，初始化可以指定是否下载运行平台所有的 `solc` 版本。
@@ -15,24 +15,24 @@ solc_compiler init --platform macosx-amd64 -a
 可以重复初始化，以覆盖当前配置，初始化过程中出现文件下载失败的情况，可以：
 ```
 // 重试初始化，该过程会自动跳过已下载的编译器版本
-solc_compiler init --platform macosx-amd64 -a
+solc-compiler init --platform macosx-amd64 -a
 
 // 指定版本，使用可执行程序手动获取
-solc_compiler fetch v0.8.0
+solc-compiler fetch v0.8.0
 ```
 
 ## 管理编译器版本
 ```
 // 下载
-solc_compiler fetch v0.8.0
+solc-compiler fetch v0.8.0
 
 // 删除
-solc_compiler delete v0.8.0
+solc-compiler delete v0.8.0
 ```
 
 ## 编译 solidity 文件
 ```
-solc_compiler compile --scope bin,abi,hashes --name Counter v0.5.11 [path_to_file] --optimize --optimize-runs 200 --evm-version "default"
+solc-compiler compile --scope bin,abi,hashes --name Counter v0.5.11 [path_to_file] --optimize --optimize-runs 200 --evm-version "default"
 --scope         指定编译的输出内容
 --name          指定编译合约
 --optimize      指定编译是否进行优化
@@ -43,7 +43,7 @@ solc_compiler compile --scope bin,abi,hashes --name Counter v0.5.11 [path_to_fil
 
 ## 启动 RPC 服务
 ```
-solc_compiler rest-server
+solc-compiler rest-server
 提供以下接口：
 
 contract_ping: 心跳
