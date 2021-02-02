@@ -235,14 +235,14 @@ func callback(path string) error {
 	command = exec.Command("bash", "-c", cmd)
 	err = command.Run()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	// link file
-	cmd = fmt.Sprintf("ln -s %s %s", path, dir + "/" + strs[0])
+	cmd = fmt.Sprintf("ln -fs %s %s", path, dir + "/" + strs[0])
 	command = exec.Command("bash", "-c", cmd)
 	err = command.Run()
 	if err != nil && !os.IsExist(err) {
-		panic(err)
+		return err
 	}
 	return nil
 }
