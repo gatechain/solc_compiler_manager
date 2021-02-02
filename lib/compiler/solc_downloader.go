@@ -21,7 +21,7 @@ func EnsureExists(version string) (string, error){
 	if lib.FileExist(path) && version != lib.SolcVersionLatest {
 		return path, nil
 	} else {
-		versions := fetchVersions()
+		versions := FetchVersions()
 		if release := versionReleased(versions, version); release != ""{
 			HandleCall(version, release, nil)
 			return path, nil
@@ -65,7 +65,7 @@ func client() rest.Client {
 	return client
 }
 
-func fetchVersions() lib.SolcVersion {
+func FetchVersions() lib.SolcVersion {
 	client := client()
 	var resp lib.SolcVersion
 	err := client.FetchVersions(&resp)
@@ -118,7 +118,7 @@ func deleteVersion(path string) error {
 }
 
 func FetchAllVersion(n ...int) error {
-	versions := fetchVersions()
+	versions := FetchVersions()
 	var wg sync.WaitGroup
 	wg.Add(len(versions.Releases))
 	plot := lib.NewMultiProgressBar("Start Download: ")

@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"github.com/gatechain/solc_compiler_manager/lib"
+	"github.com/gatechain/solc_compiler_manager/lib/compiler"
 	"github.com/gatechain/solc_compiler_manager/lib/compiler/solidity"
 	"log"
 )
@@ -29,5 +30,10 @@ func (api *ContractAPI) Verify(params lib.CompileInput) (map[string]interface{},
 		return nil, err
 	}
 	return res, nil
+}
+
+func (api *ContractAPI) ListVersions() lib.SolcVersion {
+	versions := compiler.FetchVersions()
+	return versions
 }
 

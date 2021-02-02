@@ -44,5 +44,5 @@ func RegisterRoutes(rs *rest.Server) {
 	}
 
 	// register handler
-	rs.Mux.HandleFunc("/", server.ServeHTTP).Methods("POST")
+	rs.Mux.HandleFunc("/", server.ServeHTTP).Methods("POST", "GET")
 }
