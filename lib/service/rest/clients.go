@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gatechain/smart_contract_verifier/lib"
+	"github.com/gatechain/solc_compiler_manager/lib"
 	"io"
 	"io/ioutil"
 	"net/http"

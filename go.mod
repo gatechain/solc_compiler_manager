@@ -1,10 +1,9 @@
-module github.com/gatechain/smart_contract_verifier
+module github.com/gatechain/solc_compiler_manager
 
 go 1.14
 
 require (
 	github.com/bgentry/speakeasy v0.1.0
-	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.9.21
 	github.com/go-kit/kit v0.8.0
 	github.com/gorilla/handlers v1.5.1
@@ -15,4 +14,4 @@ require (
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 )
 
-replace github.com/gatechain/smart_contract_verifier v0.0.0-20210125081747-cd368d6e121a => ./
+replace github.com/gatechain/solc_compiler_manager => ./

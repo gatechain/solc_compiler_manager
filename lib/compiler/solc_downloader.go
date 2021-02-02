@@ -2,8 +2,8 @@ package compiler
 
 import (
 	"fmt"
-	"github.com/gatechain/smart_contract_verifier/lib"
-	"github.com/gatechain/smart_contract_verifier/lib/service/rest"
+	"github.com/gatechain/solc_compiler_manager/lib"
+	"github.com/gatechain/solc_compiler_manager/lib/service/rest"
 	"net/url"
 	"os"
 	"os/exec"

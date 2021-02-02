@@ -3,8 +3,8 @@ package solidity
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gatechain/smart_contract_verifier/lib"
-	"github.com/gatechain/smart_contract_verifier/lib/compiler"
+	"github.com/gatechain/solc_compiler_manager/lib"
+	"github.com/gatechain/solc_compiler_manager/lib/compiler"
 	"math/rand"
 	"os"
 	"os/exec"

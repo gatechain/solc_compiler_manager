@@ -3,8 +3,8 @@ package cmds
 import (
 	"fmt"
 	"github.com/bgentry/speakeasy"
-	"github.com/gatechain/smart_contract_verifier/lib"
-	"github.com/gatechain/smart_contract_verifier/lib/compiler"
+	"github.com/gatechain/solc_compiler_manager/lib"
+	"github.com/gatechain/solc_compiler_manager/lib/compiler"
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 	"os"

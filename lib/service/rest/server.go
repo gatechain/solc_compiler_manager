@@ -3,7 +3,7 @@ package rest
 import (
 	"context"
 	"fmt"
-	"github.com/gatechain/smart_contract_verifier/lib"
+	"github.com/gatechain/solc_compiler_manager/lib"
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"

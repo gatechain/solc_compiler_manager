@@ -3,7 +3,7 @@ package rpc
 import (
 	"context"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/gatechain/smart_contract_verifier/lib/service/rest"
+	"github.com/gatechain/solc_compiler_manager/lib/service/rest"
 )
 
 // RPC namespaces and API version

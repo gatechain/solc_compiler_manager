@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/gatechain/smart_contract_verifier/cmd/solc-compiler/cmds"
-	"github.com/gatechain/smart_contract_verifier/lib"
+	"github.com/gatechain/solc_compiler_manager/cmd/solc-compiler/cmds"
+	"github.com/gatechain/solc_compiler_manager/lib"
 	"github.com/spf13/cobra"
 )
 
