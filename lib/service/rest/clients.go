@@ -126,7 +126,6 @@ func (client Client) FetchVersion(response lib.SolcVersion, version string) (lib
 			return b, nil
 		}
 	}
-
 	return lib.SolcBuild{}, fmt.Errorf("given version not found")
 }
 
